@@ -1,4 +1,4 @@
-name = "First examdsdsple"
+name = "First example"
 description = "My first Drupal module"
 core = 7.x
 files[] = first_example.module
