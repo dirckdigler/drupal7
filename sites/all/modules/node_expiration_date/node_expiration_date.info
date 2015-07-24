@@ -1,5 +1,0 @@
-name = "Node Expiration Date"
-description = "Add an expiration date to content"
-core = 7.x
-files[] = node_expiration_date.module
-package = My modules 
