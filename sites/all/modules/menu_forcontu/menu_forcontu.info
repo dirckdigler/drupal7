@@ -1,0 +1,6 @@
+name = "menu forcontu"
+description = "Creation menu custom"
+core = 7.x
+files[] = menu_forcontu.module
+configure = url1
+package = My modules

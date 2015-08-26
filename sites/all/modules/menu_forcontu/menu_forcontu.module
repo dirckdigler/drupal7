@@ -1,0 +1,191 @@
+<?php
+/**
+* @file
+* Módulo Node Expiration Date
+* Este módulo permite añadir una fecha de caducidad a los nodos.
+*/
+/**
+* Implements hook_help().
+*/
+function menu_forcontu_help($path, $arg) {
+switch ($path) {
+// Ayuda general para el módulo Node Expiration Date
+case 'admin/help#menu_forcontu':
+return '<p>' . t('This module permits to add an expiration
+date to any content in the site. The administrator can configure
+which content types could have an expiration date.') . '</p>';
+}
+}
+
+/**
+* Implements hook_menu().
+*/
+function menu_forcontu_menu(){
+
+//ejemplo de menu con url registradas y sin registrar
+
+$items['url1'] = array(
+'title' => 'Example URL 1',
+'page callback' => 'menu_forcontu_url1',
+'access callback' => TRUE,
+'type' => MENU_CALLBACK,
+);
+
+$items['url2/%/%'] = array(
+'title' => 'Example URL 2',
+'page callback' => 'menu_forcontu_url2',
+'page arguments' => array(1,2),
+'access callback' => TRUE,
+'type' => MENU_CALLBACK,
+);
+
+$items['url3/%/%'] = array(
+'title' => 'Example URL 3',
+'page callback' => 'menu_forcontu_url2',
+'page arguments' => array('Edwin','Vega'),
+'access callback' => TRUE,
+'type' => MENU_CALLBACK,
+);
+
+$items['admin/config/development/url4'] = array(
+'title' => 'Nuevo elemento de menú2',
+'page callback' => 'menu_forcontu_url4',
+'description' => 'Descripción del enlace.',
+'access callback' => TRUE,
+'type' => MENU_NORMAL_ITEM,
+'weight' => 0,
+);
+
+$items['url6'] = array(
+'title' => 'Elemento de menú en Menú Principal',
+'page callback' => 'menu_forcontu_url4',
+'access callback' => TRUE,
+'type' => MENU_NORMAL_ITEM,
+'menu_name' => 'main-menu',
+'weight' => 1,
+);
+
+$items['admin/config/development/url7'] = array(
+'title' => 'Nuevo elemento de menú3',
+'page callback' => 'menu_forcontu_url7',
+'description' => 'Descripción del enlace.',
+'access callback' => TRUE,
+'type' => MENU_NORMAL_ITEM,
+//'menu_name' => 'devel',
+'weight' => 0,
+);
+
+//ejemplo de pestañas
+$items['tabs'] = array(
+'title' => 'Ejemplos de pestañas',
+'page callback' => 'menu_forcontu_tab1',
+'access callback' => TRUE,
+'type' => MENU_NORMAL_ITEM,
+);
+$items['tabs/tab1'] = array(
+'title' => 'Tab 1',
+'type' => MENU_DEFAULT_LOCAL_TASK,
+'weight' => 1,
+);
+$items['tabs/tab2'] = array(
+'title' => 'Tab 2',
+'page callback' => 'menu_forcontu_tab2',
+'access callback' => TRUE,
+'type' => MENU_LOCAL_TASK,
+'weight' => 2,
+);
+$items['tabs/tab3'] = array(
+'title' => 'Tab 3',
+'page callback' => 'menu_forcontu_tab3',
+'access callback' => TRUE,
+'type' => MENU_LOCAL_TASK,
+'weight' => 3,
+);
+$items['tabs/tab3/api'] = array(
+'title' => 'Ir a la API de Drupal',
+'page callback' => 'drupal_goto',
+'page arguments' => array('http://api.drupal.org'),
+'access callback' => TRUE,
+'type' => MENU_LOCAL_ACTION,
+);
+
+$items['intranet'] = array(
+'title' => 'Intranet',
+'page callback' => 'menu_forcontu_intranet',
+'access callback' => 'user_access',
+'access arguments' => array('access menu_forcontu content'),
+'type' => MENU_CALLBACK, 
+);
+return $items;
+}
+
+/**
+* Page callback
+* Función que se invocará al cargar la página www.example.com/url1
+*/
+function menu_forcontu_url1(){
+$output = t('Example Menu Module!');
+return $output;
+}
+
+function menu_forcontu_url2($nombre='', $apellido=''){
+$output = t('Welcome, @nombre @apellido!',
+array('@nombre' => $nombre, '@apellido' => $apellido));
+return $output;
+}
+
+function menu_forcontu_url4(){
+  $output = t('Aqui podria implementar el codigo');
+  return $output;
+}
+
+function menu_forcontu_url7(){
+  $output = t('Aqui se implemento la funcion menu_forcontu_url7');
+  return $output;
+}
+
+/**
+* Page callback - Tab 1
+*/
+function menu_forcontu_tab1(){
+$output = t('Tab 1 content');
+return $output;
+}
+/**
+* Page callback - Tab 2
+*/
+function menu_forcontu_tab2(){
+$output = t('Tab 2 content');
+return $output;
+}
+/**
+* Page callback - Tab 3
+*/
+function menu_forcontu_tab3(){
+$output = t('Tab 3 content');
+return $output;
+}
+
+/**
+* page control de acceso
+*/
+function menu_forcontu_intranet(){
+$output = t('Página restringida para los usuarios con el permiso
+adecuado');
+return $output;
+}
+
+/**
+* Implements hook_permission().
+*/
+function menu_forcontu_permission() {
+return array(
+'access menu_forcontu content' => array(
+'title' => t('Access to Menu Forcontu restricted pages'),
+'description' => t(' Allows access to restricted pages of
+the menu items defined in Menu Forcontu'),
+),
+);
+}
+
+
