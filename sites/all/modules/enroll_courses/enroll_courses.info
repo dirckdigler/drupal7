@@ -1,0 +1,9 @@
+name = "enroll courses"
+description = "Consult and enroll college courses"
+core = 7.x
+files[] = enroll_courses.module
+files[] = enroll_courses.admin.inc
+files[] = enroll_courses.install
+configure = admin/config/workflow/enroll_courses
+package = My modules
+

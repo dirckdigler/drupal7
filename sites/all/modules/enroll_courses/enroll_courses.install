@@ -1,0 +1,42 @@
+<?php
+/**
+* Implements hook_schema()
+*/
+function enroll_courses_schema() {
+
+  $schema['add_courses'] = array(
+    'description' => 'Almacena los datos del tipo de contenido mi producto.',
+    'fields' => array(
+      'nid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Primary Key: nid.',
+      ),
+      'course_name' => array(
+        'description' => 'The title of this node, always treated as non-markup plain text.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'career_name' => array(
+        'description' => 'The title of this node, always treated as non-markup plain text.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('nid'),
+  );
+  return $schema;
+}
+/**
+* Implements hook_install().
+*/
+function enroll_courses_install() {  //creacion del campo body, es la unica manera para crear este tipo de campo 
+
+  node_types_rebuild();  //actualiza los tipos de contenido, asegurándonos de que esté disponible durante la instalación
+  $types = node_type_get_types();  //devuelve un vector con todos los tipos de contenido disponibles
+  node_add_body_field($types['add_courses'], 'Descriptioioioon');  //dos parametros: type y label
+}

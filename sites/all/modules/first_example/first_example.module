@@ -22,14 +22,14 @@ function first_example_block_info() {
 /**
 * Implements hook_block_view().
 */
-function first_example_block_view($delta = '')  {
-  //contenido del bloque 'welcome' definido en hook_block_info() .
+function first_example_block_view($delta = '') {
+//Implementación del bloque 'welcome' definido en el hook_block_info.
   $block = array();
   switch ($delta) {
-  	case 'welcome';
-  	  $block['subject'] = t('myfirst module');
-  	  $block['content'] = t('welcome to the drupla site.');
-  	break;
+    case 'welcome':
+      $block['subject'] = t('My first module');  //encabezado
+      $block['content'] = t('Welcome to my Drupal site.');  //contenido
+    break;
   }
   return $block;
 }

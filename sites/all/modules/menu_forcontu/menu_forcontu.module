@@ -1,8 +1,8 @@
 <?php
 /**
 * @file
-* Módulo Node Expiration Date
-* Este módulo permite añadir una fecha de caducidad a los nodos.
+* Módulo menu focontu
+* Este módulo permite registrar url y crear menus.
 */
 /**
 * Implements hook_help().
@@ -116,6 +116,12 @@ $items['intranet'] = array(
 'access arguments' => array('access menu_forcontu content'),
 'type' => MENU_CALLBACK, 
 );
+$items['url50'] = array(
+'title' => 'Example URL 1',
+'page callback' => 'menu_forcontu_url1',
+'access callback' => TRUE,
+'type' => MENU_CALLBACK,
+);
 return $items;
 }
 
@@ -187,5 +193,6 @@ the menu items defined in Menu Forcontu'),
 ),
 );
 }
+
 
 

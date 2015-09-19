@@ -1,0 +1,34 @@
+<?php
+/**
+* Implements hook_schema()
+*/
+function forms_forcontu_schema() {
+  $schema['forms_forcontu_account'] = array(
+    'description' => t('Datos de la cuenta de usuario'),
+    'fields' => array(
+       'id' => array(
+         'description' => 'ID único y autoincremental',
+         'type' => 'serial',
+         'not null' => TRUE,
+       ),
+       'email' => array(
+         'description' => 'Email',
+         'type' => 'varchar',
+         'length' => 255,
+         'not null' => TRUE,
+       ),
+       'password' => array(
+         'description' => 'Clave',
+         'type' => 'varchar',
+         'length' => 255,
+        ),
+        'firma' => array(
+          'description' => 'Firma',
+          'type' => 'varchar',
+          'length' => 255,
+        ),
+    ),
+    'primary key' => array('id'),
+  );
+  return $schema;
+}   

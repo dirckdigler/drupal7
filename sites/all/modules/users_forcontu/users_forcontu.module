@@ -1,0 +1,207 @@
+<?php
+
+/**
+* @file
+* Modulo de users forcontu
+* Este modulo es una prueba de administracion de usuarios
+*/
+/**
+* Implements hook_block_info().
+*/
+function users_forcontu_block_info() {
+  
+  //declaracion del bloque
+  $blocks['user_data'] = array(
+    'info' => t ('User Data'),
+    'cache' => DRUPAL_NO_CACHE,
+  );
+  return $blocks;
+}
+/**
+* Implements hook_block_view().
+*/
+function users_forcontu_block_view($delta = '') {
+  
+  $block = array();
+  switch ($delta) {  //sentencia switch($delta) para diferenciar cada bloque definido y asignarle los valores de título y contenido.
+    case 'user_data':
+    //necesitamos acceder al objeto $user del usuario actual
+    global $user;
+    
+      if (user_is_logged_in()){
+        if ($user->picture){  //Estos if ayudan a que si no hay imagenes en el perfil no se cargue una imagen por defecto
+          //carga el objeto archivo de la imagen de usuario
+          $variable_temp = file_load($user->picture);
+          //obtiene la URL final a partir de la URL en formato URI
+          $var_temp = file_create_url($variable_temp->uri);
+        }
+          $block['subject'] = '<strong>'.t('Bienvenido ').l($user->name, 'user/'. $user->uid).'</strong>';
+          $output = '<div class="user_block_registered">';
+        if ($user->picture){  
+          $output .= '<div id="image">' . l('<img src="' .$var_temp.'">', 'user/'. $user->uid, array('html'=>TRUE)) . '</div>';
+        }  
+          $output .= '<div id="logout">'.l(t('Logout'),'user/logout').'</div>';
+      }else{
+        $output = '<div class="user_block_anonymous">';
+        $output = '<p>Usted no ha iniciado <a href="/user/login"
+        title="Iniciar Sesión">sesión</a> o no está <a href="/user/register"
+        title="Registrarme">registrado</a><p>';
+        $output .= '</div>';
+      }
+      $block['content'] = $output;
+      break;
+  }
+  return $block;
+}
+/**
+* Implements hook_form_alter.
+*/
+/*function users_forcontu_form_alter(&$form, &$form_state, $form_id){
+
+  switch($form_id){
+    case 'user_register_form': //formulario de registro de usuario
+      $form['firstname'] = array(
+        '#type' => 'textfield',
+        '#title' => t('First name'),
+        '#description' => t('First name'),
+        '#required' => 1,
+        '#maxlenght' => 255,
+      );
+      $form['lastname'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Last name'),
+        '#description' => t('Last name'),
+        '#required' => 1,
+        '#maxlenght' => 255,
+      );
+      $form['web'] = array(
+        '#type' => 'textfield',
+        '#title' => 'Web',
+        '#description' => t('User\'s web'),
+        '#required' => 0,
+        '#maxlenght' => 255,
+      );
+      break;
+    case 'user_profile_form': //formulario de edición de usuario para los  que ya estan registrados
+      $var_temporal = user_load($form['#user']->uid);  //se recomienda utilizar como variable local $account en lugar de $var_temporal
+      $form['firstname'] = array(
+       '#type' => 'textfield',
+       '#title' => t('First name'),
+       '#description' => t('First name'),
+       '#required' => 1,
+       '#lenght' => 255,
+       '#default_value' => (($var_temporal->data['firstname']) ? $var_temporal->data['firstname'] : ''),
+      );
+      $form['lastname'] = array(
+       '#type' => 'textfield',
+       '#title' => t('Last name'),
+       '#description' => t('Last name'),
+       '#required' => 1,
+       '#lenght' => 255,
+       '#default_value' => (($var_temporal->data['lastname'])),
+      );  
+      $form['web'] = array(
+        '#type' => 'textfield',
+        '#title' => 'Web',
+        '#description' => t('User web'),
+        '#required' => 0,
+        '#lenght' => 255,
+        '#default_value' => (($var_temporal->data['web'])),
+      );
+      break;
+  }
+}
+/**
+* Implements hook_user_presave.
+*/
+
+/*function users_forcontu_user_presave(&$edit, $account, $category){  //adiciono estos valores a la base de datos en el campo data
+
+  $edit['data'] = array(
+    'firstname' => $edit['firstname'],
+    'lastname' => $edit['lastname'],
+    //'web' => $edit['web'],
+  );
+}*/
+
+/**
+* Implements hook_user_categories.
+*/
+/*
+function users_forcontu_user_categories(){
+
+  $category = array();
+  $category = array(
+    'name' => 'datos_personales',
+    'title' => 'Datos personales',
+    'weight' => 4,
+);
+return $category;
+}
+/**
+* Implements hook_user_view.
+*/
+/*
+function users_forcontu_user_view($account, $view_mode, $langcode){
+
+  $account->content['datos_personales'] = array();
+  $account->content['datos_personales'] = array(
+    '#type' => 'user_profile_category',
+    '#attributes' => array('class' => 'datos-personales-usuario'),
+    '#weight' => 4,
+    '#title' => t('Personal data'),
+  );
+  $account->content['datos_personales']['firstname'] = array(
+    '#type' => 'user_profile_item',
+    '#title' => t('First name'),
+    '#markup' => $account->data['firstname'],
+    //'#attributes' => array('class' => 'nombre-usuario'),
+    '#weight' => 1,
+  );
+  $account->content['datos_personales']['lastname'] = array(
+    '#type' => 'user_profile_item',
+    '#title' => t('Last name'),
+    '#markup' => $account->data['lastname'],
+    '#attributes' => array('class' => 'apellidos-usuario'),
+    '#weight' => 2,
+  );
+  $account->content['datos_personales']['web'] = array(
+    '#type' => 'user_profile_item',
+    '#title' => 'Web',
+    '#markup' => '<a href ="http://www.aletasoccean.com">'.$account->data['web'].'</a>',
+    '#attributes' => array('class' => '		web-usuario'),
+    '#weight' => 3,
+  );
+}
+/**
+* Implemets hook_menu
+*/
+function users_forcontu_menu(){
+
+$items['portada_intranet'] = array(
+'title' => 'Intranet',
+'page callback' => 'users_forcontu_intranet2',
+'access callback' => TRUE,
+'type' => MENU_CALLBACK,
+);
+return $items;
+} 
+/**
+* page control de acceso
+*/
+function users_forcontu_intranet2(){
+  $output = t('Actualmente estamos construyendo el sitio, gracias.....').'<p>'.t('Trabajamos para usted.').'</p></div>';
+  return $output;
+}
+/**
+* Implements hook_user_login.
+*/
+
+/*function users_forcontu_user_login(&$edit, $account){
+
+  if(is_array($account->roles) && in_array('intranet', array_values($account->roles))) {
+      $_GET['destination'] = 'portada_intranet';
+  }
+}
+*/
+

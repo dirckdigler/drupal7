@@ -1,0 +1,340 @@
+<?php
+/**
+* @file
+* Module enroll courses
+* This module allows enroll college courses
+*/
+/**
+* Implements hook_help().
+*/
+function enroll_courses_help($path, $arg) {
+  global $user;
+
+  switch ($path) {
+    case 'admin/help#enroll_courses':
+      return '<p>' . t('This module allows to enroll college courses, it is important to have the courses already defined 
+           for your convenience.') . '</p>';
+    case 'admin/config/workflow/enroll_course/create':
+      return '<p>' . t("This web page allows teacher administrators to register new courses. Courses' name and career must be unique.") . '</p>';
+  }
+}
+/**
+* Implements hook_menu().
+*/
+function enroll_courses_menu() {
+  
+  $items['admin/config/workflow/enroll_course'] = array(
+    'title' => 'Enroll college courses',
+    'description' => 'Settings for module Enroll college courses',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('enroll_courses_teacher_settings'),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'enroll_courses.admin.inc',
+  );
+  $items['admin/config/workflow/enroll_course/teacher'] = array(
+   'title' => 'Teacher',
+   'type' => MENU_DEFAULT_LOCAL_TASK,
+   'weight' => -10,
+  );
+  $items['admin/config/workflow/enroll_course/student'] = array(
+    'title' => 'Student',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('enroll_courses_teacher_settings'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 5,
+    'file' => 'enroll_courses.admin.inc',
+  );
+  $items['admin/config/workflow/enroll_course/create'] = array(
+    'title' => 'Add courses',
+    'page arguments' => array('enroll_courses_add'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_LOCAL_ACTION,
+  );
+  return $items;
+}
+/**
+* Implements hook_form_alter.
+*/
+function enroll_courses_form_alter(&$form, &$form_state, $form_id){
+
+	global $user;
+  
+  switch($form_id){
+    case 'user_register_form': //formulario de registro de usuario
+      $form['firstname'] = array(
+        '#type' => 'textfield',
+        '#title' => t('First name'),
+        '#description' => t('First name'),
+        '#required' => 1,
+        '#maxlenght' => 255,
+      );
+      $form['lastname'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Last name'),
+        '#description' => t('Last name'),
+        '#required' => 1,
+        '#maxlenght' => 255,
+      );
+      $form['identification'] = array(
+        '#type' => 'textfield',
+        '#title' => 'Identification',
+        '#description' => t('Identification'),
+        '#required' => 1,
+        '#maxlenght' => 255,
+      );
+      $form['college_program'] = array(
+        '#type' => 'select',
+        '#title' => t('College program'),
+        '#default_value' => 'Engineering systems',
+        '#options' => array(
+          'engineering_systems' => t('Engineering systems'),
+          'social_work' => t('Social work'),
+        ),
+        '#description' => t('Select your college program'),
+      );
+      break;
+    case 'user_profile_form': //formulario de edición de usuario para los  que ya estan registrados
+      $uid = (int)$form['#user']->uid;
+      $account = user_load($uid);
+      //$var_temporal = user_load($form['#user']->uid);  //se recomienda utilizar como variable local $account en lugar de $var_temporal
+      $form['firstname'] = array(
+       '#type' => 'textfield',
+       '#title' => t('First name'),
+       '#description' => t('First name'),
+       '#required' => 1,
+       '#lenght' => 255,
+       '#default_value' => (($account->data['firstname']) ? $account->data['firstname'] : ''),
+      );
+      $form['lastname'] = array(
+       '#type' => 'textfield',
+       '#title' => t('Last name'),
+       '#description' => t('Last name'),
+       '#required' => 1,
+       '#lenght' => 255,
+       '#default_value' => (($account->data['lastname']) ? $account->data['lastname'] : ''),
+      );  
+      $form['identification'] = array(
+        '#type' => 'textfield',
+        '#title' => 'Identification',
+        '#description' => t('Identification'),
+        '#required' => 1,
+        '#lenght' => 255,
+        '#default_value' => (($account->data['identification']) ? $account->data['identification'] : ''),
+      );  
+      $form['college_program'] = array(
+        '#type' => 'select',
+        '#title' => t('College program'),
+        '#default_value' => 'Engineering systems',
+        '#options' => array(
+          'engineering_systems' => t('Engineering systems'),
+          'social_work' => t('Social work'),
+        ),
+        '#description' => t('Select your college program'),
+        '#default_value' => (($account->data['college_program']) ? $account->data['college_program'] : ''),
+      );
+      break;
+  }
+}
+/**
+* Implements hook_user_presave.
+*/
+function enroll_courses_user_presave(&$edit, $account, $category){  //adiciono estos valores a la base de datos en el campo data
+
+  $edit['data'] = array(
+    'firstname' => $edit['firstname'],
+    'lastname' => $edit['lastname'],
+    'identification' => $edit['identification'],
+    'college_program' => $edit['college_program'],
+  );
+}
+/**
+* Implements hook_permission.
+*/
+function enroll_courses_permission(){
+
+return array(
+  'access to add courses' => array(
+    'title' => t('Add course'),
+    'description' => t('access to add any course in to the college program.'),
+  ),
+    'view personal data' => array(
+    'title' => t('View personal data'),
+    'description' => t('View personal data.'),
+  ),
+);
+}
+/**
+* Implements hook_user_login.
+*/
+function enroll_courses_user_login(&$edit, $account){ 
+
+  if(user_access('access to add courses')) {
+    $_GET['destination'] = 'admin/config/workflow/enroll_course';
+  }
+}
+/**
+* Implments hook_node_info
+*/
+function enroll_courses_node_info() {
+  
+  return array(
+    'add_courses' => array(  //nombre del tipo de contenido a nivel de sistema
+    'name' => t('College courses'),  //nombre del tipo de contenido tal como lo veran los usuarios en el menu 
+    'base' => 'enroll_courses',  //prefijo para las funciones de retorno
+    'description' => t('Use courses to insert the name of courses for different academic programs.'),
+    'title_label' => t('Course name'),
+    )
+  );
+}
+/**
+* Implements hook_form().
+*/
+function enroll_courses_form($node, &$form_state) {
+  
+  $type = node_type_get_type($node);
+  
+  $form['course_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Course name'),
+    '#required' => TRUE,
+    '#default_value' => $node->course_name,
+    '#description' => t("Enter a course name"),
+    '#size' => 20,
+    '#maxlength' => 255,
+  );
+  $form['career_name'] = array(
+    '#type' => 'select',
+    '#title' => t('Career name'),
+    '#required' => TRUE,
+    // '#default_value' => $node->career_name,
+    '#options' => array(
+      'engineering_systems' => t('Engineering system'),
+      'social_work' => t('Social work'),
+      'geology' => t('Geology'),
+    ),
+  '#description' => t('Select a career name to the college program'),
+  );
+return $form;
+}
+/**
+* Implements hook_insert().
+*
+*/
+function enroll_courses_insert($node) {
+       
+db_insert('add_courses')
+->fields(array(
+'nid' => $node->nid,
+'course_name' => $node->course_name,
+'career_name' => $node->career_name,
+))
+->execute();
+}
+/**
+* Implements hook_load().
+*/
+function enroll_courses_load($nodes) {
+
+  $result = db_query('SELECT nid, course_name, career_name FROM {add_courses} WHERE nid IN (:nids)', array(':nids' => array_keys($nodes)));
+  foreach ($result as $record) {
+    $nodes[$record->nid]->course_name = $record->course_name;
+    $nodes[$record->nid]->career_name = $record->career_name;
+  }
+}
+/**
+* Implements hook_update().
+*/
+function enroll_courses_update($node) {
+
+  db_update('add_courses')
+  ->fields(array(
+    'course_name' => $node->course_name,
+    'career_name' => $node->career_name,
+  ))
+  ->condition('nid', $node->nid)
+  ->execute();
+}
+/**
+* Implements hook_delete().
+*/
+function enroll_courses_delete($node) {
+
+  db_delete('add_courses')
+  ->condition('nid', $node->nid)
+  ->execute();
+}
+/**
+* Implements hook_view().
+*/
+/*function enroll_courses_view($node, $view_mode) {
+
+  //dpm($node->course_name);
+  $node->content['course_name'] = array(
+    '#markup' => theme('enroll_courses_course_name', $node->course_name),
+    '#weight' => 1,
+  );
+  $node->content['career_name'] = array(
+    '#markup' => theme('enroll_courses_career_name', $node->career_name),
+    '#weight' => 2,
+  );
+  return $node;
+}
+/**
+* Implements hook_theme().
+*/
+/*function enroll_courses_theme($existing, $type, $theme, $path) {
+
+  return array(
+    'enroll_courses_course_name' => array(
+      'template' => 'enroll_courses_course_name',
+      'variables' => array('course_name' => NULL),
+    ),
+    'enroll_courses_career_name' => array(
+       'template' => 'enroll_courses_career_name',
+       'variables' => array('career_name' => NULL),
+    ),
+  );
+}
+/**
+* Devuelve la salida HTML para el elemento Precio.
+*
+* @param $variables
+* An associative array containing:
+*
+*
+* @ingroup themeable
+*/
+/*function theme_enroll_courses_course_name($variables){
+
+  $output = '<div class="product-price">';
+  $output .= t('Course name') . ': ' . $variables['course_name'] . ' €';
+  $output .= '</div>';
+  return $output;
+}
+/**
+* Devuelve la salida HTML para el elemento Peso.
+*
+* @param $variables
+* An associative array containing:
+* - peso: peso en kg.
+*
+* @ingroup themeable
+*/
+/*function theme_enroll_courses_career_name($variables){
+
+  $output = '<div class="product-weight">';
+  $output .= t('Career name') . ': ' . $variables['career_name'] . ' Kg.';
+  $output .= '</div>';
+  return $output;
+}
+/**
+* Pending
+* 1. traer el valor de vuelta a travez del default value de un campo tipo select (enroll_courses_form)
+* 1. It's important to diference the role student and teacher to redirect url (enroll_courses_user_login)
+* 2. submit "name_teacher" into DB test, table enroll_courses_add to register new course.
+* 3. Show values to the form "user_profile_form" after sign out 
+* 4. 
+*/

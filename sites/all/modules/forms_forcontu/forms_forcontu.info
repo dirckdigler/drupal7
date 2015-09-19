@@ -1,0 +1,6 @@
+name = "formualario forcontu"
+description = "Creation formulario custom"
+core = 7.x
+files[] = forms_forcontu.module
+configure = url1
+package = My modules
